@@ -10,6 +10,9 @@ from django.contrib.auth.decorators import login_required
 
 from django.contrib.auth.views import PasswordResetView
 
+import requests
+from django.conf import settings
+
 # Create your views here.
 
 @login_required(login_url='login')
@@ -37,7 +40,7 @@ def Book_Detail(request, book_id):
 
 def Signup_View(request):
     if request.method == 'GET':
-        return render(request, 'signup.html')
+        return render(request, 'signup.html',{"RECAPTCHA_PUBLIC_KEY": settings.RECAPTCHA_PUBLIC_KEY})
     
     elif request.method == 'POST':
         first_name = request.POST.get('first_name')
@@ -46,43 +49,55 @@ def Signup_View(request):
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
 
-        if password != confirm_password:
-            messages.info(request, "Password and Confirm Password are not same")
-            return render(request, 'signup.html')
+        if verify_recaptcha(request.POST.get("g-recaptcha-response")):
 
-        else:
-            user = User.objects.filter(username=username)
+            if password != confirm_password:
+                messages.info(request, "Password and Confirm Password are not same")
+                return render(request, 'signup.html',{"RECAPTCHA_PUBLIC_KEY": settings.RECAPTCHA_PUBLIC_KEY})
 
-            if user.exists():
-                messages.info(request, "Username already exists")
             else:
-                user = User.objects.create(username=username, first_name=first_name, email=email, password=password)
-                user.set_password(password)
-                user.save()
+                user = User.objects.filter(username=username)
 
-                messages.info(request, "Profile is Created")
-                return render(request, 'signup.html')
-            
-            return render(request, 'signup.html')
+                if user.exists():
+                    messages.info(request, "Username already exists")
+                else:
+                    user = User.objects.create(username=username, first_name=first_name, email=email, password=password)
+                    user.set_password(password)
+                    user.save()
+
+                    messages.info(request, "Profile is Created")
+                    return render(request, 'signup.html',{"RECAPTCHA_PUBLIC_KEY": settings.RECAPTCHA_PUBLIC_KEY})
+                
+                return render(request, 'signup.html',{"RECAPTCHA_PUBLIC_KEY": settings.RECAPTCHA_PUBLIC_KEY})
+        
+        else:
+            messages.error(request, "Invalid reCAPTCHA")
+            return render(request, 'signup.html',{"RECAPTCHA_PUBLIC_KEY": settings.RECAPTCHA_PUBLIC_KEY})
 
 
 def Login_View(request):
     if request.method == 'GET':
-        return render(request, 'login.html')
+        return render(request, 'login.html', {"RECAPTCHA_PUBLIC_KEY": settings.RECAPTCHA_PUBLIC_KEY})
 
     elif request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
 
-        user = authenticate(request, username=username, password=password)
+        if verify_recaptcha(request.POST.get("g-recaptcha-response")):
 
-        if user is not None:
-            login(request, user)
-            return redirect('books-list')
-        else:
-            messages.info(request, "Username or Password is invalid")
+            user = authenticate(request, username=username, password=password)
+
+            if user is not None:
+                login(request, user)
+                return redirect('books-list')
+            else:
+                messages.info(request, "Username or Password is invalid")
+            
+            return render(request, 'login.html', {"RECAPTCHA_PUBLIC_KEY": settings.RECAPTCHA_PUBLIC_KEY})
         
-        return render(request, 'login.html')
+        else:
+            messages.error(request, "Invalid reCAPTCHA")
+            return render(request, 'login.html', {"RECAPTCHA_PUBLIC_KEY": settings.RECAPTCHA_PUBLIC_KEY})
             
 
 def Logout_View(request):
@@ -99,3 +114,39 @@ class MyPasswordResetView(PasswordResetView):
     email_template_name = 'reges/password_reset_email.html'
     subject_template_name = 'reges/password_reset_subject.txt'
     success_url = reverse_lazy('password_reset_done')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["RECAPTCHA_PUBLIC_KEY"] = settings.RECAPTCHA_PUBLIC_KEY
+        return context
+
+    def form_valid(self, form):
+        """Check reCAPTCHA before proceeding with password reset"""
+        recaptcha_response = self.request.POST.get("g-recaptcha-response")
+
+        # Send verification request to Google
+        data = {
+            "secret": settings.RECAPTCHA_PRIVATE_KEY,
+            "response": recaptcha_response
+        }
+        r = requests.post("https://www.google.com/recaptcha/api/siteverify", data=data)
+        result = r.json()
+
+        if result.get("success"):
+            # ✅ CAPTCHA passed → continue normal flow
+            return super().form_valid(form)
+        else:
+            # ❌ CAPTCHA failed → reload form with error
+            messages.error(self.request, "Invalid reCAPTCHA. Please try again.")
+            return self.form_invalid(form)
+
+
+""" Captcha Code """
+
+def verify_recaptcha(response_token):
+    data = {
+        "secret": settings.RECAPTCHA_PRIVATE_KEY,
+        "response": response_token
+    }
+    r = requests.post("https://www.google.com/recaptcha/api/siteverify", data=data)
+    return r.json().get("success", False)

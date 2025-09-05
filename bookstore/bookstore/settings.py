@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'captcha',
     'user',
 ]
 
@@ -128,14 +129,26 @@ STATICFILES_DIR = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+import environ
+import os
+
+# Initialize environment variables
+env = environ.Env()
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'         # used for testing if email is being sent or not
 
 # settings.py
 
-# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-# EMAIL_HOST = "smtp.gmail.com"
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = "your_email@gmail.com"
-# EMAIL_HOST_PASSWORD = "your_app_password"   # not your normal password
-# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")   # not your normal password
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# Captcha Code
+
+RECAPTCHA_PUBLIC_KEY = env("RECAPTCHA_PUBLIC_KEY")
+RECAPTCHA_PRIVATE_KEY = env("RECAPTCHA_PRIVATE_KEY")

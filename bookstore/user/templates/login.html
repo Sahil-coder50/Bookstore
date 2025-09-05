@@ -31,6 +31,9 @@
                         <div class="mb-3">
                             <a href="{% url 'password_reset' %}">Forgot your Password</a>
                         </div>
+                        <!-- reCAPTCHA widget -->
+                        <div class="mb-3 g-recaptcha" data-sitekey="{{RECAPTCHA_PUBLIC_KEY}}">
+                        </div>
                         <button type="submit" class="btn btn-primary">Login</button>
                     </form>
                 </div>
