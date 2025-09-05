@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+    <div class="container">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="card p-3">
+                    {% if messages %}
+
+                        {% for message in messages %}
+
+                            <div class="mb-3 text-bg-success p-3">{{message}}</div>
+
+                        {% endfor %}
+
+                    {% endif %}
+                    <form method="post">
+
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label for="exampleInputUsername1" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="exampleInputUsername1"  name="username">
+                        </div>
+                        <div class="mb-3">
+                            <label for="exampleInputPassword1" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="exampleInputPassword1" name="password">
+                        </div>
+                        <div class="mb-3">
+                            <a href="{% url 'password_reset' %}">Forgot your Password</a>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
