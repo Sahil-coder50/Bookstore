@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -19,4 +20,18 @@ class Book(models.Model):
     def __str__(self):
         return self.title
     
+    class Meta:
+        permissions = [
+            ("can_add_book","Can Add Book"),
+            ("can_update_book","Can Update Book"),
+            ("can_delete_book","Can Delete Book")
+        ]
+    
+
+""" Activation Model """
+
+class ActivationToken(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    token = models.CharField(max_length=64, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 

@@ -1,6 +1,6 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
-from . models import Author, Book
+from . models import Author, Book, ActivationToken
 
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
@@ -12,8 +12,14 @@ from django.contrib.auth.views import PasswordResetView
 
 import requests
 from django.conf import settings
+from django.utils.crypto import get_random_string
+from django.core.mail import send_mail
+
+from django.utils import timezone
+from datetime import timedelta
 
 # Create your views here.
+
 
 @login_required(login_url='login')
 def Books_List(request):
@@ -36,7 +42,12 @@ def Book_Detail(request, book_id):
         ...
 
 
+
+
 """ Login, Logout and Signup Functionality """
+
+
+
 
 def Signup_View(request):
     if request.method == 'GET':
@@ -61,9 +72,15 @@ def Signup_View(request):
                 if user.exists():
                     messages.info(request, "Username already exists")
                 else:
-                    user = User.objects.create(username=username, first_name=first_name, email=email, password=password)
-                    user.set_password(password)
-                    user.save()
+                    user = User.objects.create_user(username=username, first_name=first_name, email=email, password=password, is_active=False)
+                    # user.set_password(password)
+                    # user.save()
+
+                    token = get_random_string(32)
+
+                    ActivationToken.objects.create(user=user, token=token)
+
+                    send_verification_email(user.email, token)
 
                     messages.info(request, "Profile is Created")
                     return render(request, 'signup.html',{"RECAPTCHA_PUBLIC_KEY": settings.RECAPTCHA_PUBLIC_KEY})
@@ -107,7 +124,43 @@ def Logout_View(request):
         return redirect('login')
 
 
+
+""" Verification Email """
+
+def send_verification_email(email, token):
+    activation_link = f"{settings.SITE_URL}/activate/{token}"
+    send_mail(
+        subject="Activate your account",
+        message=f"Click here to activate: {activation_link}",
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[email],
+    )
+
+
+""" Activate User Code """
+
+def activate_user(request, token):
+    activation = get_object_or_404(ActivationToken,token=token)
+
+    # Reject stale tokens
+    if timezone.now() - activation.created_at > timedelta(days=1):
+        messages.info(request, "Token expired")
+        return redirect("login", status=400)
+
+    # Flip the switch
+    user = activation.user
+    user.is_active = True
+    user.save()
+
+    # Invalidate the token so it cannot be reused
+    activation.delete()
+
+    messages.info(request, "Account activated")
+    return redirect("login")
+
+
 """ Password Reset """
+
 
 class MyPasswordResetView(PasswordResetView):
     template_name = 'reges/password_reset_form.html'
@@ -141,7 +194,11 @@ class MyPasswordResetView(PasswordResetView):
             return self.form_invalid(form)
 
 
+
+
 """ Captcha Code """
+
+
 
 def verify_recaptcha(response_token):
     data = {

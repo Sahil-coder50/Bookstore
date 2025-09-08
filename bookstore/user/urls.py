@@ -10,6 +10,7 @@ urlpatterns = [
     path('login/', views.Login_View, name='login'),
     path('logout/', views.Logout_View, name='logout'),
     path('signup/', views.Signup_View, name='signup'),
+    path('activate/<str:token>/', views.activate_user, name='activate'),
 
     # Password reset views
 
