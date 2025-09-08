@@ -18,24 +18,43 @@ from django.core.mail import send_mail
 from django.utils import timezone
 from datetime import timedelta
 
+import jwt
+from jwt import ExpiredSignatureError, InvalidTokenError
+
 # Create your views here.
 
 
 @login_required(login_url='login')
 def Books_List(request):
     if request.method == 'GET':
-        books = Book.objects.all()
+        # books = Book.objects.all()
+
+
+        access = request.session.get('access')
+        headers = {"Authorization": f"Bearer {access}"}
+
+        # GET request with JWT auth
+        resp = requests.get("http://127.0.0.1:8000/api/books/", headers=headers)
+        books = resp.json()
 
         return render(request, 'books.html', {'books': books})
 
     elif request.method == 'POST':
         ...
 
+
 @login_required(login_url='login')
 def Book_Detail(request, book_id):
     if request.method == 'GET':
-        book = Book.objects.get(id=book_id)
+        # book = Book.objects.get(id=book_id)
 
+        access = request.session.get('access')
+        headers = {"Authorization": f"Bearer {access}"}
+
+        # GET request with JWT auth
+        resp = requests.get(f"http://127.0.0.1:8000/api/books/{book_id}/", headers=headers)
+        book = resp.json()
+  
         return render(request, 'detail.html', {'book': book})
 
     elif request.method == 'PATCH':
@@ -100,13 +119,36 @@ def Login_View(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
 
+
         if verify_recaptcha(request.POST.get("g-recaptcha-response")):
 
             user = authenticate(request, username=username, password=password)
 
             if user is not None:
                 login(request, user)
+
+                access = request.session.get("access")
+
+                if access is None:
+                    resp = requests.post("http://127.0.0.1:8000/api/token/", json={
+                        "username": username,
+                        "password": password
+                    })
+                    tokens = resp.json()
+
+                    request.session["access"] = tokens["access"]
+                    request.session["refresh"] = tokens["refresh"]
+                
+                elif not is_access_token_valid(access):
+                    refresh_resp = requests.post("http://127.0.0.1:8000/api/token/refresh/", json={
+                        "refresh": request.session.get("refresh")
+                    })
+                    new_access = refresh_resp.json().get("access")
+                    
+                    request.session["access"] = new_access
+
                 return redirect('books-list')
+            
             else:
                 messages.info(request, "Username or Password is invalid")
             
@@ -199,7 +241,6 @@ class MyPasswordResetView(PasswordResetView):
 """ Captcha Code """
 
 
-
 def verify_recaptcha(response_token):
     data = {
         "secret": settings.RECAPTCHA_PRIVATE_KEY,
@@ -207,3 +248,22 @@ def verify_recaptcha(response_token):
     }
     r = requests.post("https://www.google.com/recaptcha/api/siteverify", data=data)
     return r.json().get("success", False)
+
+
+""" JWT Authentication for API -- checking if access token is valid """
+
+
+def is_access_token_valid(token):
+    try:
+        # settings.SIMPLE_JWT["SIGNING_KEY"] is usually your Django SECRET_KEY
+        payload = jwt.decode(
+            token,
+            settings.SECRET_KEY,
+            algorithms=["HS256"],
+            options={"verify_exp": True}  # will raise error if expired
+        )
+        return True
+    except ExpiredSignatureError:
+        return False
+    except InvalidTokenError:
+        return False

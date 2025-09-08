@@ -4,6 +4,27 @@
 
 {% block content %}
 
-    <h1>Book Details</h1>
+    <div class="container">
+        <div class="row g-3 m-3 justify-content-around">
+
+                <div class="col-md-4">
+
+                        <div class="card p-3">
+                            
+                            <div class="card-body">
+                                <div class="card-title"><strong><p>Book Title:{{book.title}}</p></strong></div>
+                            </div>
+                            <div class="card-text">
+                                <div class="card-author"><p>Author:{{book.author}}</p></div>
+                                <div class="card-date"><p>Published Date:{{book.published_date}}</p></div>
+                                <div class="card-price"><p>Price:{{book.price}}</p></div>
+                                <div class="card-stock"><p>Stock:{{book.stock}}</p></div>
+                            </div>
+
+                        </div>     
+                </div>
+
+        </div>
+    </div>
 
 {% endblock %}

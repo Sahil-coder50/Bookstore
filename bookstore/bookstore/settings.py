@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    ''
     'captcha',
     'user',
 ]
@@ -157,3 +158,13 @@ RECAPTCHA_PRIVATE_KEY = env("RECAPTCHA_PRIVATE_KEY")
 # Site Url
 
 SITE_URL = "http://127.0.0.1:8000"
+
+
+# Authentication for API Access
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # "user.api.authentication.ZohoAPIKeyAuthentication",
+    ],
+}
+# ZOHO_API_KEY = "your_secret_api_key_from_zoho"

@@ -19,14 +19,6 @@ class Book(models.Model):
 
     def __str__(self):
         return self.title
-    
-    class Meta:
-        permissions = [
-            ("can_add_book","Can Add Book"),
-            ("can_update_book","Can Update Book"),
-            ("can_delete_book","Can Delete Book")
-        ]
-    
 
 """ Activation Model """
 
