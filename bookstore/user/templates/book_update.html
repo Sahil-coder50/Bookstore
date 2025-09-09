@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+    <div class="container">
+        <div class="row g-3 m-3 justify-content-around">
+            <div class="col-md-4">
+                <form action="{% url 'book-update' book.id %}" method="post">
+                    {% csrf_token %}
+
+                        <input type="hidden" name="_method" value="PATCH">
+
+                        <div class="mb-3">
+                            <label for="bookTitle" class="form-label">Book Title</label>
+                            <input type="text" class="form-control" id="bookTitle"  name="title" placeholder="{{book.title}}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="bookAuthor" class="form-label">Book Author</label>
+                            <input type="text" class="form-control" id="bookAuthor" name="author" placeholder="{{book.author}}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="bookPublishedDate" class="form-label">Book Published Date</label>
+                            <input type="text" class="form-control" id="bookPublishedDate" name="published_date" placeholder="{{book.published_date}}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="bookPrice" class="form-label">Book Price</label>
+                            <input type="text" class="form-control" id="bookPrice" name="price" placeholder="{{book.price}}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="bookStock" class="form-label">Book Stock</label>
+                            <input type="text" class="form-control" id="bookStock" name="stock" placeholder="{{book.stock}}">
+                        </div>
+                        <!-- reCAPTCHA widget -->
+                        <div class="mb-3 g-recaptcha" data-sitekey="{{RECAPTCHA_PUBLIC_KEY}}">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Book</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

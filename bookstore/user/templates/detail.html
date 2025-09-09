@@ -20,6 +20,11 @@
                                 <div class="card-price"><p>Price:{{book.price}}</p></div>
                                 <div class="card-stock"><p>Stock:{{book.stock}}</p></div>
                             </div>
+                            <div class="card-button">
+                                <a href="{% url 'book-update' book.id %}">
+                                    <button class="btn btn-primary">Update Details</button>
+                                </a>
+                            </div>
 
                         </div>     
                 </div>

@@ -167,4 +167,12 @@ REST_FRAMEWORK = {
         # "user.api.authentication.ZohoAPIKeyAuthentication",
     ],
 }
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+}
+
 # ZOHO_API_KEY = "your_secret_api_key_from_zoho"

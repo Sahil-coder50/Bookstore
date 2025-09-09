@@ -26,12 +26,23 @@ from jwt import ExpiredSignatureError, InvalidTokenError
 
 @login_required(login_url='login')
 def Books_List(request):
+
+    access = request.session.get('access')
+
+    if not is_access_token_valid(access):
+                refresh_resp = requests.post("http://127.0.0.1:8000/api/token/refresh/", json={
+                    "refresh": request.session.get("refresh")
+                })
+                new_access = refresh_resp.json().get("access")
+                
+                request.session["access"] = new_access
+
+    headers = {"Authorization": f"Bearer {access}",
+               "Content-Type": "application/json",
+                "Accept": "application/json"}
+
     if request.method == 'GET':
         # books = Book.objects.all()
-
-
-        access = request.session.get('access')
-        headers = {"Authorization": f"Bearer {access}"}
 
         # GET request with JWT auth
         resp = requests.get("http://127.0.0.1:8000/api/books/", headers=headers)
@@ -39,17 +50,73 @@ def Books_List(request):
 
         return render(request, 'books.html', {'books': books})
 
+    
+    elif request.method == 'DELETE':
+
+        # DELETE request with JWT auth
+        resp = requests.delete("http://127.0.0.1:8000/api/books/", headers=headers)
+        books = resp.json()
+
+        return render(request, 'books.html', {'books':books})
+
+@login_required(login_url='login')
+def Books_Add(request):
+
+    access = request.session.get('access')
+
+    if not is_access_token_valid(access):
+                refresh_resp = requests.post("http://127.0.0.1:8000/api/token/refresh/", json={
+                    "refresh": request.session.get("refresh")
+                })
+                new_access = refresh_resp.json().get("access")
+                
+                request.session["access"] = new_access
+
+    headers = {"Authorization": f"Bearer {access}",
+               "Content-Type": "application/json",
+                "Accept": "application/json"}
+
+    if request.method == 'GET':
+        return render(request, 'book_add.html')
+    
     elif request.method == 'POST':
-        ...
+        
+        payload = {
+            'title':request.POST.get('title'),
+            'author':request.POST.get('author'),
+            'published_date':request.POST.get('published_date'),
+            'price':request.POST.get('price'),
+            'stock':request.POST.get('stock'),
+        }
+
+
+        # POST request with JWT auth
+        resp = requests.post("http://127.0.0.1:8000/api/books/", json=payload, headers=headers)
+
+        return redirect('books-list')
+    
+
 
 
 @login_required(login_url='login')
 def Book_Detail(request, book_id):
+
+    access = request.session.get('access')
+
+    if not is_access_token_valid(access):
+                refresh_resp = requests.post("http://127.0.0.1:8000/api/token/refresh/", json={
+                    "refresh": request.session.get("refresh")
+                })
+                new_access = refresh_resp.json().get("access")
+                
+                request.session["access"] = new_access
+
+    headers = {"Authorization": f"Bearer {access}",
+               "Content-Type": "application/json",
+                "Accept": "application/json"}
+
     if request.method == 'GET':
         # book = Book.objects.get(id=book_id)
-
-        access = request.session.get('access')
-        headers = {"Authorization": f"Bearer {access}"}
 
         # GET request with JWT auth
         resp = requests.get(f"http://127.0.0.1:8000/api/books/{book_id}/", headers=headers)
@@ -57,8 +124,61 @@ def Book_Detail(request, book_id):
   
         return render(request, 'detail.html', {'book': book})
 
-    elif request.method == 'PATCH':
-        ...
+
+
+
+@login_required(login_url='login')
+def Book_Update(request, book_id):
+
+    access = request.session.get('access')
+
+    if not is_access_token_valid(access):
+                refresh_resp = requests.post("http://127.0.0.1:8000/api/token/refresh/", json={
+                    "refresh": request.session.get("refresh")
+                })
+                new_access = refresh_resp.json().get("access")
+                
+                request.session["access"] = new_access
+
+    headers = {"Authorization": f"Bearer {access}",
+               "Content-Type": "application/json",
+                "Accept": "application/json"}
+
+    if request.method == 'GET':
+
+        #  GET request with JWT auth
+        resp = requests.get(f"http://127.0.0.1:8000/api/books/{book_id}/", headers=headers)
+        book = resp.json()
+
+        return render(request, 'book_update.html', {'book': book})
+
+    elif request.method == 'POST':
+
+        # PUT and PATCH request with JWT auth
+        payload = {
+            'title':request.POST.get('title'),
+            'author':request.POST.get('author'),
+            'published_date':request.POST.get('published_date'),
+            'price':request.POST.get('price'),
+            'stock':request.POST.get('stock'),
+        }
+
+        # drop empty values
+        payload = {k: v for k, v in payload.items() if v not in (None, '', [])}
+
+        method = request.POST.get('_method', 'PUT')
+
+        if method == 'PATCH':
+            resp = requests.patch(f"http://127.0.0.1:8000/api/books/{book_id}/", json=payload,headers=headers)
+            book = resp.json()
+        else:
+            resp = requests.put(f"http://127.0.0.1:8000/api/books/{book_id}/", json=payload, headers=headers)
+            book = resp.json()
+        
+        if resp.status_code in (200, 204):
+            return redirect('book-detail', book_id=book_id)
+        else:
+             return render(request, 'book_update.html', {"book":book})
 
 
 

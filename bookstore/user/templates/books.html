@@ -26,6 +26,21 @@
 
             {% endfor %}
         </div>
+
+        <div class="row g-3 m-3 justify-content-around">
+            <div class="col-md-4">
+                <div>
+                    <a href="{% url 'book-add' %}"><button class="btn btn-primary">Add a Book</button></a>
+                </div>
+                
+                <!--{# <div>
+                    <form action="{% url 'books-list' %}" method="post">
+                        <button>Delete All Books</button>
+                    </form>
+                </div> #}-->
+            </div>
+        </div>
+
     </div>
 
 {% endblock %}
