@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+    <div class="container">
+
+        <div class="row g-5 m-5 justify-content-around">
+
+            {% for author in authors %}
+                <div class="col-md-6">
+                    <div class="card p-3 h-100 shadow-sm border-0 rounded-3" style="min-height: 250px; min-width: 200px;">
+                        <div class="card-body">
+                            <a href="{% url 'author-detail' author.id %}" class="nav-link text-decoration-none text-dark"><div class="card-author"><strong><p>{{author.name}}</p></strong></div></a>
+                        </div>
+
+                        <div class="card-text p-3 h-100 w-100">                    
+                            <div class="card-biography">{{author.biography}}</div>
+                        </div>
+
+                    </div>
+                </div>
+            {% endfor%}
+        </div>
+    </div>
+{% endblock %}

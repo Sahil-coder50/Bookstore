@@ -6,3 +6,7 @@
     border: 2px solid black;
 }
 
+.card{
+    min-height: 400px;
+    min-width: 400px;
+}

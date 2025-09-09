@@ -9,7 +9,7 @@
 
                 <div class="col-md-4">
 
-                        <div class="card p-3">
+                        <div class="card p-3 h-100 shadow-sm border-0 rounded-3" style="min-height: 250px; min-width: 200px;">
                             
                             <div class="card-body">
                                 <div class="card-title"><strong><p>Book Title:{{book.title}}</p></strong></div>
@@ -20,10 +20,22 @@
                                 <div class="card-price"><p>Price:{{book.price}}</p></div>
                                 <div class="card-stock"><p>Stock:{{book.stock}}</p></div>
                             </div>
-                            <div class="card-button">
-                                <a href="{% url 'book-update' book.id %}">
-                                    <button class="btn btn-primary">Update Details</button>
-                                </a>
+                            <div class="card-button d-flex gap-3 m-3 justify-content-around">
+                                <div>
+                                    <a href="{% url 'book-update' book.id %}">
+                                        <button class="btn btn-primary">Update Details</button>
+                                    </a>
+                                </div>
+
+                                <div>
+                                    <form action="{% url 'book-detail' book.id %}" method="post">
+                                        {% csrf_token %}
+
+                                        <input type="hidden" name="_method" value="DELETE">
+
+                                        <button type="submit" class="btn btn-danger">Delete Book</button>
+                                    </form>
+                                </div>
                             </div>
 
                         </div>     

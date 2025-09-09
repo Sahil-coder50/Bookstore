@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+    <div class="container p-5">
+        <div class="row g-3 m-3 justify-content-around">
+
+                <div class="col-md-12">
+
+                        <div class="card p-3 h-100 shadow-sm border-0 rounded-3">
+                            
+                            <div class="card-body">
+                                <div class="card-title"><strong><p>Author Name:{{author.name}}</p></strong></div>
+                            </div>
+                            <div class="card-text">
+                                <div class="card-author"><p>Biography:{{author.biography}}</p></div>
+                            </div>
+
+                            <div class="container2">
+                                <div class="row g-3 m-3 justify-content-around">
+
+                                    {% for book in author.books %}
+
+                                        <div class="col-md-5">
+
+                                                <div class="card p-3 h-100 shadow-sm border-0 rounded-3" style="min-height: 250px; min-width: 200px;">
+                                                    
+                                                    <div class="card-body">
+                                                        <a class="nav-link" href="{% url 'book-detail' book.id %}"><div class="card-title"><strong>{{book.title}}</strong></div></a>
+                                                    </div>
+                                                    <div class="card-text">
+                                                        <div class="card-author">{{book.author}}</div>
+                                                        <div class="card-date">{{book.published_date}}</div>
+                                                    </div>
+
+                                                </div>     
+                                        </div>
+
+                                    {% endfor %}
+                                </div>
+
+                                <div class="row g-3 m-3">
+                                    <div class="d-flex gap-3 m-3 justify-content-around">
+                                        <div>
+                                            <a href="{% url 'book-add' %}"><button class="btn btn-success">Add a New Book</button></a>
+                                        </div>
+                                        
+                                        <div>
+                                            <form action="#" method="post">
+                                                {% csrf_token %}
+                                                <button class="btn btn-danger">Delete All Books</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>     
+                </div>
+
+        </div>
+    </div>
+
+{% endblock %}

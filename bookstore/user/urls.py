@@ -9,6 +9,11 @@ urlpatterns = [
     path('books/detail/<int:book_id>/', views.Book_Detail, name='book-detail'),
     path('books/detail/update/<int:book_id>/', views.Book_Update, name='book-update'),
 
+    path('authors/', views.Authors_List, name='authors-list'),
+    path('authors/add/', views.Author_Add, name='author-add'),
+    path('authors/detail/<int:author_id>/', views.Author_Detail, name='author-detail'),
+    path('authors/detail/update/<int:author_id>/', views.Author_Update, name='author-update'),
+
     path('', views.Login_View, name='login'),
     path('logout/', views.Logout_View, name='logout'),
     path('signup/', views.Signup_View, name='signup'),

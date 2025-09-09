@@ -2,12 +2,6 @@ from rest_framework import serializers
 from user.models import Book, Author, ActivationToken
 
 
-class AuthorSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Author
-        fields = '__all__'
-        include = ['books']
 
 
 class BookSerializer(serializers.ModelSerializer):
@@ -18,6 +12,13 @@ class BookSerializer(serializers.ModelSerializer):
         model = Book
         fields = '__all__'
 
+class AuthorSerializer(serializers.ModelSerializer):
+
+    books = BookSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Author
+        fields = ['id','name','biography','books']
 
 class ActivationSerializer(serializers.ModelSerializer):
     class Meta:

@@ -23,6 +23,9 @@ from jwt import ExpiredSignatureError, InvalidTokenError
 
 # Create your views here.
 
+"""
+Books FrontEnd Code Views are here
+"""
 
 @login_required(login_url='login')
 def Books_List(request):
@@ -30,12 +33,12 @@ def Books_List(request):
     access = request.session.get('access')
 
     if not is_access_token_valid(access):
-                refresh_resp = requests.post("http://127.0.0.1:8000/api/token/refresh/", json={
-                    "refresh": request.session.get("refresh")
-                })
-                new_access = refresh_resp.json().get("access")
-                
-                request.session["access"] = new_access
+        refresh_resp = requests.post("http://127.0.0.1:8000/api/token/refresh/", json={
+            "refresh": request.session.get("refresh")
+        })
+        new_access = refresh_resp.json().get("access")
+        
+        request.session["access"] = new_access
 
     headers = {"Authorization": f"Bearer {access}",
                "Content-Type": "application/json",
@@ -59,18 +62,20 @@ def Books_List(request):
 
         return render(request, 'books.html', {'books':books})
 
+
+
 @login_required(login_url='login')
 def Books_Add(request):
 
     access = request.session.get('access')
 
     if not is_access_token_valid(access):
-                refresh_resp = requests.post("http://127.0.0.1:8000/api/token/refresh/", json={
-                    "refresh": request.session.get("refresh")
-                })
-                new_access = refresh_resp.json().get("access")
-                
-                request.session["access"] = new_access
+        refresh_resp = requests.post("http://127.0.0.1:8000/api/token/refresh/", json={
+            "refresh": request.session.get("refresh")
+        })
+        new_access = refresh_resp.json().get("access")
+        
+        request.session["access"] = new_access
 
     headers = {"Authorization": f"Bearer {access}",
                "Content-Type": "application/json",
@@ -104,12 +109,12 @@ def Book_Detail(request, book_id):
     access = request.session.get('access')
 
     if not is_access_token_valid(access):
-                refresh_resp = requests.post("http://127.0.0.1:8000/api/token/refresh/", json={
-                    "refresh": request.session.get("refresh")
-                })
-                new_access = refresh_resp.json().get("access")
-                
-                request.session["access"] = new_access
+        refresh_resp = requests.post("http://127.0.0.1:8000/api/token/refresh/", json={
+            "refresh": request.session.get("refresh")
+        })
+        new_access = refresh_resp.json().get("access")
+        
+        request.session["access"] = new_access
 
     headers = {"Authorization": f"Bearer {access}",
                "Content-Type": "application/json",
@@ -122,7 +127,16 @@ def Book_Detail(request, book_id):
         resp = requests.get(f"http://127.0.0.1:8000/api/books/{book_id}/", headers=headers)
         book = resp.json()
   
-        return render(request, 'detail.html', {'book': book})
+        return render(request, 'book_detail.html', {'book': book})
+    
+    elif request.method == 'POST':
+        method = request.POST.get('_method')
+        if method == 'DELETE':
+            
+            #  DELETE request with JWT auth
+            resp = requests.delete(f"http://127.0.0.1:8000/api/books/{book_id}/", headers=headers)
+
+            return redirect('books-list')
 
 
 
@@ -133,12 +147,12 @@ def Book_Update(request, book_id):
     access = request.session.get('access')
 
     if not is_access_token_valid(access):
-                refresh_resp = requests.post("http://127.0.0.1:8000/api/token/refresh/", json={
-                    "refresh": request.session.get("refresh")
-                })
-                new_access = refresh_resp.json().get("access")
-                
-                request.session["access"] = new_access
+        refresh_resp = requests.post("http://127.0.0.1:8000/api/token/refresh/", json={
+            "refresh": request.session.get("refresh")
+        })
+        new_access = refresh_resp.json().get("access")
+        
+        request.session["access"] = new_access
 
     headers = {"Authorization": f"Bearer {access}",
                "Content-Type": "application/json",
@@ -181,6 +195,79 @@ def Book_Update(request, book_id):
              return render(request, 'book_update.html', {"book":book})
 
 
+"""
+Authors FrontEnd Code Views are here
+"""
+
+@login_required(login_url='login')
+def Authors_List(request):
+    access = request.session.get('access')
+
+    if not is_access_token_valid(access):
+        refresh_resp = requests.post("http://127.0.0.1:8000/api/token/refresh/", json={
+            "refresh": request.session.get("refresh")
+        })
+        new_access = refresh_resp.json().get("access")
+        
+        request.session["access"] = new_access
+
+    headers = {"Authorization": f"Bearer {access}",
+               "Content-Type": "application/json",
+                "Accept": "application/json"}
+    
+    if request.method == 'GET':
+        
+        # GET request with JWT auth
+
+        resp = requests.get(f"http://127.0.0.1:8000/api/authors/", headers=headers)
+        authors = resp.json()
+
+        return render(request, 'Author/authors.html',{'authors':authors})
+                
+     
+
+@login_required(login_url='login')
+def Author_Add(request):
+     ...
+
+@login_required(login_url='login')
+def Author_Detail(request, author_id):
+    access = request.session.get('access')
+
+    if not is_access_token_valid(access):
+        refresh_resp = requests.post(f"http://127.0.0.1:8000/api/token/refresh/", json={
+            "refresh": request.session.get("refresh")
+        })
+        new_access = refresh_resp.json().get("access")
+
+        request.session["access"] = new_access
+
+    headers = {
+        "Authorization": f"Bearer {access}",
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+    }
+
+    if request.method == 'GET':
+        
+        # GET request for Detail Author with JWT auth
+        resp = requests.get(f"http://127.0.0.1:8000/api/authors/{author_id}/", headers=headers)
+        author = resp.json()
+        print(author)
+
+        return render(request, 'Author/author_detail.html', {'author':author})
+    
+    elif request.method == 'POST':
+
+        method = request.POST.get('_method')
+
+        if method == 'DELETE':
+            ...
+
+
+@login_required(login_url='login')
+def Author_Update(request):
+     ...
 
 
 """ Login, Logout and Signup Functionality """

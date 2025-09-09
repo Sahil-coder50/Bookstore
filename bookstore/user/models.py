@@ -12,7 +12,7 @@ class Author(models.Model):
 
 class Book(models.Model):
     title = models.CharField(max_length=300)
-    author = models.ForeignKey(Author, to_field='id', on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, to_field='id', related_name='books', on_delete=models.CASCADE)
     published_date = models.DateField()
     price = models.DecimalField(decimal_places=2, max_digits=10)
     stock = models.PositiveIntegerField(default=0)

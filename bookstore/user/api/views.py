@@ -8,6 +8,11 @@ from user.api.serializers import BookSerializer, AuthorSerializer
 
 from django.shortcuts import get_object_or_404
 
+
+"""
+The code for Books APIs is Below
+"""
+
 class Book_List_View(APIView):
 
     permission_classes = [IsAuthenticated]
@@ -90,4 +95,92 @@ class Book_Detail_View(APIView):
         else:
             book.delete()
             return Response({'messages':'Book is Deleted'}, status=status.HTTP_204_NO_CONTENT)
+
+"""
+The code for Author APIs is Below.
+"""
+
+class Author_List_View(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self,request):
+        try:
+            author = Author.objects.all()
+        except Author.DoesNotExist:
+            return Response({'error':'Author Database is Empty'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            serializer = AuthorSerializer(author, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def post(self, request):
+        serializer = AuthorSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_406_NOT_ACCEPTABLE)
+    
+    def delete(self, request):
+        try:
+            author = Author.objects.all()
+        except Author.DoesNotExist:
+            return Response({'error':'No Authors to be deleted'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            author.delete()
+            return Response({'messages':'Authors are Deleted'}, status=status.HTTP_204_NO_CONTENT)
+
+
+class Author_Detail_View(APIView):
+    
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, author_id):
+        try:
+            author = Author.objects.get(id=author_id)
+        except Author.DoesNotExist:
+            return Response({'error':'Author Does not Exist'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            serializer = AuthorSerializer(author)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def put(self, request, author_id):
+        try:
+            author = Author.objects.get(id=author_id)
+        except Author.DoesNotExist:
+            return Response({'error':'Author Does not Exist'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            serializer = AuthorSerializer(author, data=request.data)
+
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_406_NOT_ACCEPTABLE)
+            
+
+    def patch(self, request, author_id):
+        try:
+            author = Author.objects.get(id=author_id)
+        except Author.DoesNotExist:
+            return Response({'error':'Author Does not Exist'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            serializer = AuthorSerializer(author, data=request.data, partial=True)
+
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+    def delete(self,request, author_id):
+        try:
+            author = Author.objects.get(id=author_id)
+        except Author.DoesNotExist:
+            return Response({'error':'Author Does not Exist'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            author.delete()
+            return Response({'messages':'Author is Deleted'}, status=status.HTTP_204_NO_CONTENT)
+        
 
