@@ -12,7 +12,7 @@ class Book_List_View(APIView):
 
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
         try:
             books = Book.objects.all()
         except Book.DoesNotExist:
