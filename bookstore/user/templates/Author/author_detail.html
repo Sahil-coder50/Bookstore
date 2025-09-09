@@ -58,6 +58,24 @@
 
                             </div>
 
+                            <div class="card-button d-flex gap-3 m-3 justify-content-around">
+                                <div>
+                                    <a href="{% url 'author-update' author.id %}">
+                                        <button class="btn btn-primary">Update Author Details</button>
+                                    </a>
+                                </div>
+
+                                <div>
+                                    <form action="{% url 'author-detail' author.id %}" method="post">
+                                        {% csrf_token %}
+
+                                        <input type="hidden" name="_method" value="DELETE">
+
+                                        <button type="submit" class="btn btn-danger">Delete Author</button>
+                                    </form>
+                                </div>
+                            </div>
+
                         </div>     
                 </div>
 

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+    <div class="container">
+        <div class="row g-3 m-3 justify-content-around">
+            <div class="col-md-4">
+                <form action="{% url 'author-update' author.id %}" method="post">
+                    {% csrf_token %}
+
+                    <input type="hidden" name="_method" value="PATCH">
+
+                    <div class="mb-3">
+                        <label for="authorName" class="form-label">Author Name</label>
+                        <input type="text" class="form-control" id="authorName"  name="name" placeholder="{{author.name}}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="authorBiography" class="form-label">Author Biography</label>
+                        <input type="text" class="form-control" id="authorBiographyr" name="biography" placeholder="{{author.biography}}">
+                    </div>                        
+                    <button type="submit" class="btn btn-success">Update Author</button>
+            </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

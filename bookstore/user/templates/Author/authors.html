@@ -23,5 +23,20 @@
                 </div>
             {% endfor%}
         </div>
+
+        <div class="row g-3 m-3">
+            <div class="d-flex gap-3 m-3 justify-content-around">
+                <div>
+                    <a href="{% url 'author-add' %}"><button class="btn btn-success">Add a New Author</button></a>
+                </div>
+                
+                <div>
+                    <form action="#" method="post">
+                        {% csrf_token %}
+                        <button class="btn btn-danger">Delete All Authors</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}
