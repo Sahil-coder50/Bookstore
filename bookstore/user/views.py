@@ -51,13 +51,18 @@ def Books_List(request):
     if request.method == 'GET':
         # books = Book.objects.all()
 
+        """Search Code"""
+        item_name = request.GET.get('item_name')
+        params = {}
+        if item_name:
+            params['search'] = item_name
+
         # GET request with JWT auth
-        resp = requests.get("http://127.0.0.1:8000/api/books/", headers=headers)
+        resp = requests.get("http://127.0.0.1:8000/api/books/", params=params, headers=headers)
         books = resp.json()
 
         return render(request, 'books.html', {'books': books})
-
-    
+        
     elif request.method == 'DELETE':
 
         # DELETE request with JWT auth
@@ -229,10 +234,16 @@ def Authors_List(request):
                 "Accept": "application/json"}
     
     if request.method == 'GET':
+
+        """Search Code"""
+        item_name = request.GET.get('item_name')
+        params = {}
+        if item_name:
+            params['search'] = item_name
         
         # GET request with JWT auth
 
-        resp = requests.get(f"http://127.0.0.1:8000/api/authors/", headers=headers)
+        resp = requests.get(f"http://127.0.0.1:8000/api/authors/", params=params, headers=headers)
         authors = resp.json()
 
         return render(request, 'Author/authors.html',{'authors':authors})
@@ -308,7 +319,10 @@ def Author_Detail(request, author_id):
         method = request.POST.get('_method')
 
         if method == 'DELETE':
-            ...
+            
+            resp = requests.delete(f"http://127.0.0.1:8000/api/authors/{author_id}/", headers=headers)
+
+            return redirect('authors-list')
 
 
 

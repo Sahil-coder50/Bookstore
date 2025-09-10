@@ -2,27 +2,35 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.pagination import PageNumberPagination
 
 from user.models import Book, Author, ActivationToken
 from user.api.serializers import BookSerializer, AuthorSerializer
 
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
+
 
 
 """
 The code for Books APIs is Below
 """
 
+
 class Book_List_View(APIView):
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]    
 
     def get(self, request):
+        item_name = request.GET.get('search')
         try:
             books = Book.objects.all()
         except Book.DoesNotExist:
             return Response({'error':'Book Data Does Not Exists'}, status=status.HTTP_404_NOT_FOUND)
         else:
+            if item_name:
+                books = books.filter(title__icontains=item_name)
+                
             serializers = BookSerializer(books, many=True)
             return Response(serializers.data, status= status.HTTP_200_OK)
     
@@ -72,7 +80,6 @@ class Book_Detail_View(APIView):
             else:
                 return Response(serializer.errors, status=status.HTTP_406_NOT_ACCEPTABLE)
         
-    
     def patch(self, request, book_id):
         try:
             book = Book.objects.get(id=book_id)
@@ -96,17 +103,25 @@ class Book_Detail_View(APIView):
             book.delete()
             return Response({'messages':'Book is Deleted'}, status=status.HTTP_204_NO_CONTENT)
 
+
 """
 The code for Author APIs is Below.
 """
+
 
 class Author_List_View(APIView):
 
     permission_classes = [IsAuthenticated]
 
     def get(self,request):
+
+        item_name = request.GET.get('search')
         try:
             author = Author.objects.all()
+
+            if item_name:
+                author = author.filter(name__icontains=item_name)
+                
         except Author.DoesNotExist:
             return Response({'error':'Author Database is Empty'}, status=status.HTTP_404_NOT_FOUND)
         else:
@@ -159,7 +174,6 @@ class Author_Detail_View(APIView):
             else:
                 return Response(serializer.errors, status=status.HTTP_406_NOT_ACCEPTABLE)
             
-
     def patch(self, request, author_id):
         try:
             author = Author.objects.get(id=author_id)
