@@ -21,6 +21,8 @@ from datetime import timedelta
 import jwt
 from jwt import ExpiredSignatureError, InvalidTokenError
 
+from django.core.paginator import Paginator
+
 # Create your views here.
 
 
@@ -60,6 +62,12 @@ def Books_List(request):
         # GET request with JWT auth
         resp = requests.get("http://127.0.0.1:8000/api/books/", params=params, headers=headers)
         books = resp.json()
+
+        """Pagination Code"""
+        paginator = Paginator(books, 4)  # Show 4 per page.
+
+        page_number = request.GET.get("page")
+        books = paginator.get_page(page_number)
 
         return render(request, 'books.html', {'books': books})
         
@@ -245,6 +253,12 @@ def Authors_List(request):
 
         resp = requests.get(f"http://127.0.0.1:8000/api/authors/", params=params, headers=headers)
         authors = resp.json()
+
+        """Pagination Code"""
+        paginator = Paginator(authors, 2)  # Show 4 per page.
+
+        page_number = request.GET.get("page")
+        authors = paginator.get_page(page_number)
 
         return render(request, 'Author/authors.html',{'authors':authors})
                 
